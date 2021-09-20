@@ -1,0 +1,63 @@
+@Library('shareLibrary') _
+
+def tools = new org.devops.tools()
+
+String workspace = "/data/pipeline"
+
+pipeline {
+    agent {
+        node { 
+            label "cicd"    //指定运行节点
+            customWorkspace "${workspace}"    //指定工作目录
+            }
+    }
+
+    options {
+        timestamps()    //日志添加时间戳
+        skipDefaultCheckout()    //删除隐式checkout
+        disableConcurrentBuilds()    //禁止并行
+        timeout(time: 1, unit: 'HOURS')    //流水线超时时间
+    }
+
+    stages {
+        stage("GetCode"){
+            steps{
+                timeout(time: 5,unit: "MINUTES"){
+                    script{
+                        println('获取代码')
+                    }
+                }
+            }
+        }
+        stage("Build"){
+            steps{
+                script{
+                    println("构建")
+                    tools.PrintMes("this is my lib")
+                }
+            }
+        }
+    }
+    post {
+        always{
+            script{
+                println("流水线开始构建")
+            }
+        }
+        success{
+            script{
+                println("构建成功")
+            }
+        }
+        failure{
+            script{
+                println("构建失败")
+            }
+        }
+        aborted{
+            script{
+                println("流水线构建取消")
+            }
+        }
+    }
+}
